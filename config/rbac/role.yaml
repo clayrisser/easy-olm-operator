@@ -1,0 +1,59 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  creationTimestamp: null
+  name: manager-role
+rules:
+- apiGroups:
+  - cache.bitspur.com
+  resources:
+  - crdrefs
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - cache.bitspur.com
+  resources:
+  - crdrefs/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - cache.bitspur.com
+  resources:
+  - crdrefs/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - cache.bitspur.com
+  resources:
+  - manualsubscriptions
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - cache.bitspur.com
+  resources:
+  - manualsubscriptions/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - cache.bitspur.com
+  resources:
+  - manualsubscriptions/status
+  verbs:
+  - get
+  - patch
+  - update

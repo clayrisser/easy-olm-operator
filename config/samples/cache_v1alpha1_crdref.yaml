@@ -1,0 +1,12 @@
+apiVersion: cache.bitspur.com/v1alpha1
+kind: CrdRef
+metadata:
+  labels:
+    app.kubernetes.io/name: crdref
+    app.kubernetes.io/instance: crdref-sample
+    app.kubernetes.io/part-of: tmp
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: tmp
+  name: crdref-sample
+spec:
+  # TODO(user): Add fields here

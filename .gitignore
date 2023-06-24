@@ -1,0 +1,25 @@
+# app
+/easy-olm-operator
+
+# olm
+*.dll
+*.dylib
+*.exe
+*.exe~
+*.out
+*.so
+*.swo
+*.swp
+*.test
+*~
+.idea
+Dockerfile.cross
+bin
+testbin/*
+!vendor/**/zz_generated.*
+
+# mkpm
+.mkpm/*
+**/.mkpm/*
+!/.mkpm/.cache.tar.gz
+!/.mkpm/.bootstrap.mk
