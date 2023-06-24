@@ -39,6 +39,12 @@ questions:
     required: true
     label: "max concurrent reconciles"
     group: Config
+  - variable: config.crdAutoDelete
+    description: ""
+    type: boolean
+    required: true
+    label: "crd auto delete"
+    group: Config
   - variable: config.easyOlmOperator.resources.enabled
     description: ""
     type: enum

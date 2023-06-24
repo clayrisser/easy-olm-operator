@@ -9,6 +9,7 @@ config:
   debug: false
   replicas: 1
   maxConcurrentReconciles: 3
+  crdAutoDelete: true
   easyOlmOperator:
     resources:
       enabled: defaults

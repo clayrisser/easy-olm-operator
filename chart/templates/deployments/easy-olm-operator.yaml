@@ -79,6 +79,8 @@ spec:
               value: 'true'
             - name: MAX_CONCURRENT_RECONCILES
               value: {{ .Values.config.maxConcurrentReconciles | quote }}
+            - name: CRD_AUTO_DELETE
+              value: {{ .Values.config.crdAutoDelete | ternary "1" "0" }}
           {{- else }}
           env: []
           {{- end }}

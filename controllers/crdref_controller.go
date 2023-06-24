@@ -21,12 +21,10 @@ import (
 	"os"
 	"strconv"
 
-	operatorsv1alpha1 "github.com/operator-framework/api/pkg/operators/v1alpha1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
@@ -48,6 +46,8 @@ type CrdRefReconciler struct {
 //+kubebuilder:rbac:groups=cache.bitspur.com,resources=crdrefs/finalizers,verbs=update
 
 const crdRefFinalizer = "crdref.finalizers.cache.bitspur.com"
+
+var crdAutoDelete = os.Getenv("CRD_AUTO_DELETE") == "1"
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
@@ -78,14 +78,30 @@ func (r *CrdRefReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctr
 		}
 	} else {
 		if util.ContainsString(crdRef.ObjectMeta.Finalizers, crdRefFinalizer) {
-			subscription := &operatorsv1alpha1.Subscription{}
-			if err := r.Get(ctx, types.NamespacedName{Name: crdRef.Name, Namespace: crdRef.Namespace}, subscription); err != nil {
-				logger.Error(err, "GetError", "crdref", crdRef.Name)
-				return ctrl.Result{}, err
-			}
-			if err := r.Delete(ctx, subscription); err != nil {
-				logger.Error(err, "DeleteError", "crdref", crdRef.Name)
-				return ctrl.Result{}, err
+			if crdAutoDelete {
+				var crdRefs cachev1alpha1.CrdRefList
+				if err := r.List(ctx, &crdRefs); err != nil {
+					logger.Error(err, "ListError", "crdref")
+					return ctrl.Result{}, err
+				}
+				deleteCrd := true
+				for _, cr := range crdRefs.Items {
+					if cr.Status.CrdRef == crdRef.Status.CrdRef {
+						deleteCrd = false
+						break
+					}
+				}
+				if deleteCrd {
+					crd, err := util.GetCrd(ctx, r.Client, crdRef.Spec.Crd)
+					if err != nil {
+						logger.Error(err, "GetError", "crd", crdRef.Spec.Crd)
+						return ctrl.Result{}, err
+					}
+					if err := r.Delete(ctx, crd); err != nil {
+						logger.Error(err, "DeleteError", "crd", crdRef.Status.CrdRef)
+						return ctrl.Result{}, err
+					}
+				}
 			}
 			controllerutil.RemoveFinalizer(&crdRef, crdRefFinalizer)
 			if err := r.Update(ctx, &crdRef); err != nil {
@@ -96,6 +112,7 @@ func (r *CrdRefReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctr
 		return ctrl.Result{}, nil
 	}
 
+	crdRef.Status.ObservedGeneration = crdRef.Generation
 	crd, err := util.GetCrd(ctx, r.Client, crdRef.Spec.Crd)
 	if err != nil {
 		logger.Error(err, "FetchCrdError", "crd", crdRef.Spec.Crd)
@@ -119,6 +136,7 @@ func (r *CrdRefReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctr
 				}
 				return ctrl.Result{}, err
 			}
+			crdRef.Status.CrdRef = crd.GetName()
 			meta.SetStatusCondition(&crdRef.Status.Conditions,
 				metav1.Condition{
 					Type:               "Ready",
