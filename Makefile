@@ -12,6 +12,8 @@ include mkpm.mk
 ifneq (,$(MKPM_READY))
 include $(MKPM)/gnu
 
+CLOC ?= cloc
+
 .PHONY: of-% build generate manifests install uninstall start
 build: of-build
 start: of-run
@@ -25,5 +27,10 @@ of-%:
 .PHONY: docker/%
 docker/%:
 	@$(MAKE) -s -C docker $(subst docker/,,$@)
+
+.PHONY: count
+count:
+	@$(CLOC) $(shell $(GIT) ls-files | $(GREP) -v '^.gitattributes$$' | $(XARGS) git check-attr filter | \
+		$(GREP) -v 'filter: lfs' | $(SED) 's|: filter: .*||g')
 
 endif
