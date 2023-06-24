@@ -59,11 +59,11 @@ const manualSubscriptionFinalizer = "manualsubscription.finalizers.cache.bitspur
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.14.1/pkg/reconcile
 func (r *ManualSubscriptionReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	logger := log.FromContext(ctx)
-	logger.Info("R ManualSubscription")
+	logger.Info("R manualsubscription")
 
 	var manualSubscription cachev1alpha1.ManualSubscription
 	if err := r.Get(ctx, req.NamespacedName, &manualSubscription); err != nil {
-		logger.Error(err, "Failed to fetch ManualSubscription")
+		logger.Error(err, "GetError", "manualsubscription", req.NamespacedName)
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
 
@@ -71,6 +71,7 @@ func (r *ManualSubscriptionReconciler) Reconcile(ctx context.Context, req ctrl.R
 		if !util.ContainsString(manualSubscription.ObjectMeta.Finalizers, manualSubscriptionFinalizer) {
 			controllerutil.AddFinalizer(&manualSubscription, manualSubscriptionFinalizer)
 			if err := r.Update(ctx, &manualSubscription); err != nil {
+				logger.Error(err, "UpdateError", "manualsubscription", manualSubscription.Name)
 				return ctrl.Result{}, err
 			}
 		}
@@ -87,6 +88,7 @@ func (r *ManualSubscriptionReconciler) Reconcile(ctx context.Context, req ctrl.R
 			}
 			controllerutil.RemoveFinalizer(&manualSubscription, manualSubscriptionFinalizer)
 			if err := r.Update(ctx, &manualSubscription); err != nil {
+				logger.Error(err, "UpdateError", "manualsubscription", manualSubscription.Name)
 				return ctrl.Result{}, err
 			}
 		}
@@ -160,17 +162,17 @@ func (r *ManualSubscriptionReconciler) Reconcile(ctx context.Context, req ctrl.R
 			meta.RemoveStatusCondition(&manualSubscription.Status.Conditions, "Failed")
 			return ctrl.Result{}, nil
 		}
-		logger.Error(err, "CreationError", "subscription", subscription.Name)
+		logger.Error(err, "CreateError", "subscription", subscription.Name)
 		meta.SetStatusCondition(&manualSubscription.Status.Conditions,
 			metav1.Condition{
 				Type:               "Failed",
 				Status:             "True",
-				Reason:             "CreationError",
+				Reason:             "CreateError",
 				Message:            err.Error(),
 				LastTransitionTime: metav1.Now(),
 			})
 		if err := r.Status().Update(ctx, &manualSubscription); err != nil {
-			logger.Error(err, "StatusUpdateError", "manualSubscription", manualSubscription.Name)
+			logger.Error(err, "StatusUpdateError", "manualsubscription", manualSubscription.Name)
 			return ctrl.Result{}, err
 		}
 		return ctrl.Result{}, err
@@ -181,7 +183,7 @@ func (r *ManualSubscriptionReconciler) Reconcile(ctx context.Context, req ctrl.R
 		metav1.Condition{
 			Type:               "Ready",
 			Status:             metav1.ConditionTrue,
-			Reason:             "CreationSuccessful",
+			Reason:             "CreateSuccessful",
 			Message:            "Subscription successfully created",
 			LastTransitionTime: metav1.Now(),
 		})

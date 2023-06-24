@@ -33,7 +33,7 @@ type CrdRefSpec struct {
 type CrdRefStatus struct {
 	ObservedGeneration int64              `json:"observedGeneration,omitempty"`
 	Conditions         []metav1.Condition `json:"conditions,omitempty"`
-	SubscriptionStatus string             `json:"subscriptionStatus,omitempty"`
+	CrdRef             string             `json:"crdRef,omitempty"`
 }
 
 //+kubebuilder:object:root=true

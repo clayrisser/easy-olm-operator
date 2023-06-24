@@ -43,15 +43,14 @@ type NamespaceReconciler struct {
 // Reconcile is part of the main Kubernetes reconciliation loop
 func (r *NamespaceReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	logger := log.FromContext(ctx)
+	logger.Info("R namespace")
 
-	// Retrieve the namespace being reconciled
 	var namespace corev1.Namespace
 	if err := r.Get(ctx, req.NamespacedName, &namespace); err != nil {
-		logger.Error(err, "Unable to fetch Namespace")
+		logger.Error(err, "GetError", "namespace", req.NamespacedName)
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
 
-	// Check if the OperatorGroup already exists. If not, create it
 	var operatorGroup operatorsv1.OperatorGroup
 	if err := r.Get(ctx, req.NamespacedName, &operatorGroup); err != nil {
 		operatorGroup := &operatorsv1.OperatorGroup{
@@ -64,10 +63,9 @@ func (r *NamespaceReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 			},
 		}
 		if err := r.Create(ctx, operatorGroup); err != nil {
-			logger.Error(err, "Failed to create OperatorGroup", "namespace", namespace.Name)
+			logger.Error(err, "CreateError", "operatorgroup", operatorGroup.Name)
 			return ctrl.Result{}, err
 		}
-		logger.Info("Created OperatorGroup for namespace", "namespace", namespace.Name)
 	}
 
 	return ctrl.Result{}, nil

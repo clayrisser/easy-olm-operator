@@ -21,13 +21,20 @@ import (
 	"os"
 	"strconv"
 
+	operatorsv1alpha1 "github.com/operator-framework/api/pkg/operators/v1alpha1"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/api/meta"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
+	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
 	cachev1alpha1 "gitlab.com/bitspur/easy-olm-operator/api/v1alpha1"
+	"gitlab.com/bitspur/easy-olm-operator/util"
 )
 
 // CrdRefReconciler reconciles a CrdRef object
@@ -40,6 +47,8 @@ type CrdRefReconciler struct {
 //+kubebuilder:rbac:groups=cache.bitspur.com,resources=crdrefs/status,verbs=get;update;patch
 //+kubebuilder:rbac:groups=cache.bitspur.com,resources=crdrefs/finalizers,verbs=update
 
+const crdRefFinalizer = "crdref.finalizers.cache.bitspur.com"
+
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
 // TODO(user): Modify the Reconcile function to compare the state specified by
@@ -50,9 +59,96 @@ type CrdRefReconciler struct {
 // For more details, check Reconcile and its Result here:
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.14.1/pkg/reconcile
 func (r *CrdRefReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	_ = log.FromContext(ctx)
+	logger := log.FromContext(ctx)
+	logger.Info("R crdref")
 
-	// TODO(user): your logic here
+	var crdRef cachev1alpha1.CrdRef
+	if err := r.Get(ctx, req.NamespacedName, &crdRef); err != nil {
+		logger.Error(err, "GetError", "crdref", req.NamespacedName)
+		return ctrl.Result{}, client.IgnoreNotFound(err)
+	}
+
+	if crdRef.ObjectMeta.DeletionTimestamp.IsZero() {
+		if !util.ContainsString(crdRef.ObjectMeta.Finalizers, crdRefFinalizer) {
+			controllerutil.AddFinalizer(&crdRef, crdRefFinalizer)
+			if err := r.Update(ctx, &crdRef); err != nil {
+				logger.Error(err, "UpdateError", "crdref", crdRef.Name)
+				return ctrl.Result{}, err
+			}
+		}
+	} else {
+		if util.ContainsString(crdRef.ObjectMeta.Finalizers, crdRefFinalizer) {
+			subscription := &operatorsv1alpha1.Subscription{}
+			if err := r.Get(ctx, types.NamespacedName{Name: crdRef.Name, Namespace: crdRef.Namespace}, subscription); err != nil {
+				logger.Error(err, "GetError", "crdref", crdRef.Name)
+				return ctrl.Result{}, err
+			}
+			if err := r.Delete(ctx, subscription); err != nil {
+				logger.Error(err, "DeleteError", "crdref", crdRef.Name)
+				return ctrl.Result{}, err
+			}
+			controllerutil.RemoveFinalizer(&crdRef, crdRefFinalizer)
+			if err := r.Update(ctx, &crdRef); err != nil {
+				logger.Error(err, "UpdateError", "crdref", crdRef.Name)
+				return ctrl.Result{}, err
+			}
+		}
+		return ctrl.Result{}, nil
+	}
+
+	crd, err := util.GetCrd(ctx, r.Client, crdRef.Spec.Crd)
+	if err != nil {
+		logger.Error(err, "FetchCrdError", "crd", crdRef.Spec.Crd)
+		return ctrl.Result{}, err
+	}
+	if err = r.Client.Get(ctx, client.ObjectKey{Namespace: crd.GetNamespace(), Name: crd.GetName()}, crd); err != nil {
+		if apierrors.IsNotFound(err) {
+			if err := r.Client.Create(ctx, crd); err != nil {
+				logger.Error(err, "CreateError", "crd", crd.GetName())
+				meta.SetStatusCondition(&crdRef.Status.Conditions,
+					metav1.Condition{
+						Type:               "Failed",
+						Status:             "True",
+						Reason:             "CreateError",
+						Message:            err.Error(),
+						LastTransitionTime: metav1.Now(),
+					})
+				if err := r.Status().Update(ctx, &crdRef); err != nil {
+					logger.Error(err, "StatusUpdateError", "crdref", crdRef.Name)
+					return ctrl.Result{}, err
+				}
+				return ctrl.Result{}, err
+			}
+			meta.SetStatusCondition(&crdRef.Status.Conditions,
+				metav1.Condition{
+					Type:               "Ready",
+					Status:             metav1.ConditionTrue,
+					Reason:             "CreateSuccessful",
+					Message:            "CrdRef successfully created",
+					LastTransitionTime: metav1.Now(),
+				})
+			meta.RemoveStatusCondition(&crdRef.Status.Conditions, "Failed")
+			if err := r.Status().Update(ctx, &crdRef); err != nil {
+				logger.Error(err, "StatusUpdateError", "crdref", crdRef.Name)
+				return ctrl.Result{}, err
+			}
+			return ctrl.Result{}, nil
+		}
+		logger.Error(err, "GetError", "crd", crd.GetName())
+		meta.SetStatusCondition(&crdRef.Status.Conditions,
+			metav1.Condition{
+				Type:               "Failed",
+				Status:             "True",
+				Reason:             "GetError",
+				Message:            err.Error(),
+				LastTransitionTime: metav1.Now(),
+			})
+		if err := r.Status().Update(ctx, &crdRef); err != nil {
+			logger.Error(err, "StatusUpdateError", "crdref", crdRef.Name)
+			return ctrl.Result{}, err
+		}
+		return ctrl.Result{}, err
+	}
 
 	return ctrl.Result{}, nil
 }
