@@ -1,5 +1,5 @@
 # File: /Makefile
-# Project: integration-operator
+# Project: easy-olm-operator
 # File Created: 14-08-2022 14:24:57
 # Author: Clay Risser <email@clayrisser.com>
 # -----
