@@ -31,8 +31,9 @@ type CrdRefSpec struct {
 
 // CrdRefStatus defines the observed state of CrdRef
 type CrdRefStatus struct {
-	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
-	// Important: Run "make" to regenerate code after modifying this file
+	ObservedGeneration int64              `json:"observedGeneration,omitempty"`
+	Conditions         []metav1.Condition `json:"conditions,omitempty"`
+	SubscriptionStatus string             `json:"subscriptionStatus,omitempty"`
 }
 
 //+kubebuilder:object:root=true

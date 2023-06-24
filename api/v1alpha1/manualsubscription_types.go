@@ -34,8 +34,9 @@ type ManualSubscriptionSpec struct {
 
 // ManualSubscriptionStatus defines the observed state of ManualSubscription
 type ManualSubscriptionStatus struct {
-	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
-	// Important: Run "make" to regenerate code after modifying this file
+	ObservedGeneration int64              `json:"observedGeneration,omitempty"`
+	Conditions         []metav1.Condition `json:"conditions,omitempty"`
+	SubscriptionRef    string             `json:"subscriptionRef,omitempty"`
 }
 
 //+kubebuilder:object:root=true

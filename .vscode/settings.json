@@ -1,0 +1,15 @@
+{
+  "cSpell.words": [
+    "apimachinery",
+    "bitspur",
+    "cachev",
+    "controllerutil",
+    "corev",
+    "Finalizer",
+    "Finalizers",
+    "kubebuilder",
+    "manualsubscription",
+    "metav",
+    "operatorsv"
+  ]
+}

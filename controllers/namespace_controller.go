@@ -21,7 +21,9 @@ import (
 	"os"
 	"strconv"
 
+	operatorsv1 "github.com/operator-framework/api/pkg/operators/v1"
 	corev1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -40,9 +42,33 @@ type NamespaceReconciler struct {
 
 // Reconcile is part of the main Kubernetes reconciliation loop
 func (r *NamespaceReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	_ = log.FromContext(ctx)
+	logger := log.FromContext(ctx)
 
-	// your logic here
+	// Retrieve the namespace being reconciled
+	var namespace corev1.Namespace
+	if err := r.Get(ctx, req.NamespacedName, &namespace); err != nil {
+		logger.Error(err, "Unable to fetch Namespace")
+		return ctrl.Result{}, client.IgnoreNotFound(err)
+	}
+
+	// Check if the OperatorGroup already exists. If not, create it
+	var operatorGroup operatorsv1.OperatorGroup
+	if err := r.Get(ctx, req.NamespacedName, &operatorGroup); err != nil {
+		operatorGroup := &operatorsv1.OperatorGroup{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      namespace.Name,
+				Namespace: namespace.Name,
+			},
+			Spec: operatorsv1.OperatorGroupSpec{
+				TargetNamespaces: []string{namespace.Name},
+			},
+		}
+		if err := r.Create(ctx, operatorGroup); err != nil {
+			logger.Error(err, "Failed to create OperatorGroup", "namespace", namespace.Name)
+			return ctrl.Result{}, err
+		}
+		logger.Info("Created OperatorGroup for namespace", "namespace", namespace.Name)
+	}
 
 	return ctrl.Result{}, nil
 }
