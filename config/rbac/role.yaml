@@ -6,6 +6,20 @@ metadata:
   name: manager-role
 rules:
 - apiGroups:
+  - ""
+  resources:
+  - namespaces
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - namespaces/status
+  verbs:
+  - get
+- apiGroups:
   - cache.bitspur.com
   resources:
   - crdrefs

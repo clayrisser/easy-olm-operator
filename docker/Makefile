@@ -15,7 +15,7 @@ include $(MKPM)/gnu
 export DOCKER_COMPOSE := docker-compose
 export CONTEXT := ..
 export NAME := easy-olm-operator
-export REGISTRY := registry.gitlab.com/bitspur/internal
+export REGISTRY := registry.gitlab.com/bitspur/community
 export VERSION := 0.0.1
 
 include $(MKPM)/docker
