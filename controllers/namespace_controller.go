@@ -39,6 +39,7 @@ type NamespaceReconciler struct {
 
 //+kubebuilder:rbac:groups="",resources=namespaces,verbs=get;list;watch
 //+kubebuilder:rbac:groups="",resources=namespaces/status,verbs=get
+//+kubebuilder:rbac:groups=operators.coreos.com,resources=operatorgroups,verbs=get;list;watch;create
 
 // Reconcile is part of the main Kubernetes reconciliation loop
 func (r *NamespaceReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {

@@ -110,3 +110,28 @@ rules:
   - get
   - patch
   - update
+- apiGroups:
+  - operators.coreos.com
+  resources:
+  - installplans
+  verbs:
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - operators.coreos.com
+  resources:
+  - installplans/status
+  verbs:
+  - get
+- apiGroups:
+  - operators.coreos.com
+  resources:
+  - operatorgroups
+  verbs:
+  - create
+  - get
+  - list
+  - watch
