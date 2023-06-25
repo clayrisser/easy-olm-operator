@@ -7,7 +7,6 @@ import (
 
 	operatorsv1alpha1 "github.com/operator-framework/api/pkg/operators/v1alpha1"
 	cachev1alpha1 "gitlab.com/bitspur/easy-olm-operator/api/v1alpha1"
-	"gitlab.com/bitspur/easy-olm-operator/util"
 	"k8s.io/apimachinery/pkg/api/errors"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/builder"
@@ -48,8 +47,9 @@ func (r *InstallPlanReconciler) Reconcile(ctx context.Context, req ctrl.Request)
 	for _, manualSubscription := range manualSubscriptionList.Items {
 		if manualSubscription.Spec.StartingCSV == installPlan.Spec.ClusterServiceVersionNames[0] {
 			if !installPlan.Spec.Approved {
-				if err := util.ApproveInstallPlan(ctx, r.Client, installPlan.Name, installPlan.Namespace); err != nil {
-					logger.Error(err, "ApproveInstallPlanError", "installplan", installPlan.Name)
+				installPlan.Spec.Approved = true
+				if err := r.Update(ctx, installPlan); err != nil {
+					logger.Error(err, "UpdateError", "installplan", installPlan.Name)
 					return ctrl.Result{}, err
 				}
 				break
