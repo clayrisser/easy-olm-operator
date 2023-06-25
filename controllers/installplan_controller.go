@@ -36,6 +36,10 @@ func (r *InstallPlanReconciler) Reconcile(ctx context.Context, req ctrl.Request)
 		return ctrl.Result{}, err
 	}
 
+	if installPlan.Spec.Approved {
+		return ctrl.Result{}, nil
+	}
+
 	manualSubscriptionList := &cachev1alpha1.ManualSubscriptionList{}
 	if err := r.List(ctx, manualSubscriptionList); err != nil {
 		logger.Error(err, "ListError", "manualsubscription")
