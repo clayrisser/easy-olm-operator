@@ -21,8 +21,9 @@ import (
 	"os"
 	"strconv"
 
-	operatorsv1alpha2 "github.com/operator-framework/api/pkg/operators/v1alpha2"
+	operatorsv1 "github.com/operator-framework/api/pkg/operators/v1"
 	corev1 "k8s.io/api/core/v1"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -52,18 +53,21 @@ func (r *NamespaceReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
 
-	var operatorGroup operatorsv1alpha2.OperatorGroup
+	var operatorGroup operatorsv1.OperatorGroup
 	if err := r.Get(ctx, req.NamespacedName, &operatorGroup); err != nil {
-		operatorGroup := &operatorsv1alpha2.OperatorGroup{
+		operatorGroup := &operatorsv1.OperatorGroup{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      namespace.Name,
 				Namespace: namespace.Name,
 			},
-			Spec: operatorsv1alpha2.OperatorGroupSpec{
+			Spec: operatorsv1.OperatorGroupSpec{
 				TargetNamespaces: []string{namespace.Name},
 			},
 		}
 		if err := r.Create(ctx, operatorGroup); err != nil {
+			if apierrors.IsAlreadyExists(err) {
+				return ctrl.Result{}, nil
+			}
 			logger.Error(err, "CreateError", "operatorgroup", operatorGroup.Name)
 			return ctrl.Result{}, err
 		}

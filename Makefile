@@ -14,9 +14,9 @@ include $(MKPM)/gnu
 
 CLOC ?= cloc
 
-.PHONY: of-% build generate manifests install uninstall start
+.PHONY: of-% build generate manifests install uninstall dev
 build: of-build
-start: of-run
+dev: of-run
 generate: of-generate
 install: of-install
 manifests: generate of-manifests
