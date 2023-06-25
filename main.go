@@ -33,7 +33,7 @@ import (
 
 	operatorsv1 "github.com/operator-framework/api/pkg/operators/v1"
 	operatorsv1alpha1 "github.com/operator-framework/api/pkg/operators/v1alpha1"
-	cachev1alpha1 "gitlab.com/bitspur/easy-olm-operator/api/v1alpha1"
+	easyolmv1alpha1 "gitlab.com/bitspur/easy-olm-operator/api/v1alpha1"
 	"gitlab.com/bitspur/easy-olm-operator/controllers"
 	//+kubebuilder:scaffold:imports
 )
@@ -46,7 +46,7 @@ var (
 func init() {
 	utilruntime.Must(clientgoscheme.AddToScheme(scheme))
 	utilruntime.Must(operatorsv1.AddToScheme(scheme))
-	utilruntime.Must(cachev1alpha1.AddToScheme(scheme))
+	utilruntime.Must(easyolmv1alpha1.AddToScheme(scheme))
 	utilruntime.Must(operatorsv1alpha1.AddToScheme(scheme))
 	//+kubebuilder:scaffold:scheme
 }

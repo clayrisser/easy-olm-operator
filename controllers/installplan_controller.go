@@ -6,7 +6,7 @@ import (
 	"strconv"
 
 	operatorsv1alpha1 "github.com/operator-framework/api/pkg/operators/v1alpha1"
-	cachev1alpha1 "gitlab.com/bitspur/easy-olm-operator/api/v1alpha1"
+	easyolmv1alpha1 "gitlab.com/bitspur/easy-olm-operator/api/v1alpha1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/builder"
@@ -40,7 +40,7 @@ func (r *InstallPlanReconciler) Reconcile(ctx context.Context, req ctrl.Request)
 		return ctrl.Result{}, nil
 	}
 
-	manualSubscriptionList := &cachev1alpha1.ManualSubscriptionList{}
+	manualSubscriptionList := &easyolmv1alpha1.ManualSubscriptionList{}
 	if err := r.List(ctx, manualSubscriptionList); err != nil {
 		logger.Error(err, "ListError", "manualsubscription")
 		return ctrl.Result{}, err

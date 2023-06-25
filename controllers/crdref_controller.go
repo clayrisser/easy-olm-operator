@@ -31,7 +31,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
-	cachev1alpha1 "gitlab.com/bitspur/easy-olm-operator/api/v1alpha1"
+	easyolmv1alpha1 "gitlab.com/bitspur/easy-olm-operator/api/v1alpha1"
 	"gitlab.com/bitspur/easy-olm-operator/util"
 )
 
@@ -41,11 +41,11 @@ type CrdRefReconciler struct {
 	Scheme *runtime.Scheme
 }
 
-//+kubebuilder:rbac:groups=cache.bitspur.com,resources=crdrefs,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=cache.bitspur.com,resources=crdrefs/status,verbs=get;update;patch
-//+kubebuilder:rbac:groups=cache.bitspur.com,resources=crdrefs/finalizers,verbs=update
+//+kubebuilder:rbac:groups=easyolm.bitspur.com,resources=crdrefs,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=easyolm.bitspur.com,resources=crdrefs/status,verbs=get;update;patch
+//+kubebuilder:rbac:groups=easyolm.bitspur.com,resources=crdrefs/finalizers,verbs=update
 
-const crdRefFinalizer = "crdref.finalizers.cache.bitspur.com"
+const crdRefFinalizer = "crdref.finalizers.easyolm.bitspur.com"
 
 var crdAutoDelete = os.Getenv("CRD_AUTO_DELETE") == "1"
 
@@ -62,7 +62,7 @@ func (r *CrdRefReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctr
 	logger := log.FromContext(ctx)
 	logger.Info("R crdref")
 
-	var crdRef cachev1alpha1.CrdRef
+	var crdRef easyolmv1alpha1.CrdRef
 	if err := r.Get(ctx, req.NamespacedName, &crdRef); err != nil {
 		logger.Error(err, "GetError", "crdref", req.NamespacedName)
 		return ctrl.Result{}, client.IgnoreNotFound(err)
@@ -79,7 +79,7 @@ func (r *CrdRefReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctr
 	} else {
 		if util.ContainsString(crdRef.ObjectMeta.Finalizers, crdRefFinalizer) {
 			if crdAutoDelete {
-				var crdRefs cachev1alpha1.CrdRefList
+				var crdRefs easyolmv1alpha1.CrdRefList
 				if err := r.List(ctx, &crdRefs); err != nil {
 					logger.Error(err, "ListError", "crdref")
 					return ctrl.Result{}, err
@@ -180,7 +180,7 @@ func (r *CrdRefReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		}
 	}
 	return ctrl.NewControllerManagedBy(mgr).
-		For(&cachev1alpha1.CrdRef{}).
+		For(&easyolmv1alpha1.CrdRef{}).
 		WithOptions(controller.Options{MaxConcurrentReconciles: maxConcurrentReconciles}).
 		Complete(r)
 }

@@ -22,7 +22,7 @@ import (
 	"strconv"
 
 	operatorsv1alpha1 "github.com/operator-framework/api/pkg/operators/v1alpha1"
-	cachev1alpha1 "gitlab.com/bitspur/easy-olm-operator/api/v1alpha1"
+	easyolmv1alpha1 "gitlab.com/bitspur/easy-olm-operator/api/v1alpha1"
 	"gitlab.com/bitspur/easy-olm-operator/util"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
@@ -42,11 +42,11 @@ type ManualSubscriptionReconciler struct {
 	Scheme *runtime.Scheme
 }
 
-//+kubebuilder:rbac:groups=cache.bitspur.com,resources=manualsubscriptions,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=cache.bitspur.com,resources=manualsubscriptions/status,verbs=get;update;patch
-//+kubebuilder:rbac:groups=cache.bitspur.com,resources=manualsubscriptions/finalizers,verbs=update
+//+kubebuilder:rbac:groups=easyolm.bitspur.com,resources=manualsubscriptions,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=easyolm.bitspur.com,resources=manualsubscriptions/status,verbs=get;update;patch
+//+kubebuilder:rbac:groups=easyolm.bitspur.com,resources=manualsubscriptions/finalizers,verbs=update
 
-const manualSubscriptionFinalizer = "manualsubscription.finalizers.cache.bitspur.com"
+const manualSubscriptionFinalizer = "manualsubscription.finalizers.easyolm.bitspur.com"
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
@@ -61,7 +61,7 @@ func (r *ManualSubscriptionReconciler) Reconcile(ctx context.Context, req ctrl.R
 	logger := log.FromContext(ctx)
 	logger.Info("R manualsubscription")
 
-	var manualSubscription cachev1alpha1.ManualSubscription
+	var manualSubscription easyolmv1alpha1.ManualSubscription
 	if err := r.Get(ctx, req.NamespacedName, &manualSubscription); err != nil {
 		logger.Error(err, "GetError", "manualsubscription", req.NamespacedName)
 		return ctrl.Result{}, client.IgnoreNotFound(err)
@@ -204,7 +204,7 @@ func (r *ManualSubscriptionReconciler) SetupWithManager(mgr ctrl.Manager) error 
 		}
 	}
 	return ctrl.NewControllerManagedBy(mgr).
-		For(&cachev1alpha1.ManualSubscription{}).
+		For(&easyolmv1alpha1.ManualSubscription{}).
 		WithOptions(controller.Options{MaxConcurrentReconciles: maxConcurrentReconciles}).
 		Complete(r)
 }
