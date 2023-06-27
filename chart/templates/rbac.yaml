@@ -71,7 +71,7 @@ rules:
   - update
   - watch
 - apiGroups:
-  - easyolm.bitspur.com
+  - easyolm.rock8s.com
   resources:
   - crdrefs
   verbs:
@@ -83,13 +83,13 @@ rules:
   - update
   - watch
 - apiGroups:
-  - easyolm.bitspur.com
+  - easyolm.rock8s.com
   resources:
   - crdrefs/finalizers
   verbs:
   - update
 - apiGroups:
-  - easyolm.bitspur.com
+  - easyolm.rock8s.com
   resources:
   - crdrefs/status
   verbs:
@@ -97,7 +97,7 @@ rules:
   - patch
   - update
 - apiGroups:
-  - easyolm.bitspur.com
+  - easyolm.rock8s.com
   resources:
   - manualsubscriptions
   verbs:
@@ -109,13 +109,13 @@ rules:
   - update
   - watch
 - apiGroups:
-  - easyolm.bitspur.com
+  - easyolm.rock8s.com
   resources:
   - manualsubscriptions/finalizers
   verbs:
   - update
 - apiGroups:
-  - easyolm.bitspur.com
+  - easyolm.rock8s.com
   resources:
   - manualsubscriptions/status
   verbs:

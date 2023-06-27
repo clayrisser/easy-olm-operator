@@ -41,11 +41,11 @@ type CrdRefReconciler struct {
 	Scheme *runtime.Scheme
 }
 
-//+kubebuilder:rbac:groups=easyolm.bitspur.com,resources=crdrefs,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=easyolm.bitspur.com,resources=crdrefs/status,verbs=get;update;patch
-//+kubebuilder:rbac:groups=easyolm.bitspur.com,resources=crdrefs/finalizers,verbs=update
+//+kubebuilder:rbac:groups=easyolm.rock8s.com,resources=crdrefs,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=easyolm.rock8s.com,resources=crdrefs/status,verbs=get;update;patch
+//+kubebuilder:rbac:groups=easyolm.rock8s.com,resources=crdrefs/finalizers,verbs=update
 
-const crdRefFinalizer = "crdref.finalizers.easyolm.bitspur.com"
+const crdRefFinalizer = "crdref.finalizers.easyolm.rock8s.com"
 
 var crdAutoDelete = os.Getenv("CRD_AUTO_DELETE") == "1"
 

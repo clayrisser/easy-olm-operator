@@ -42,11 +42,11 @@ type ManualSubscriptionReconciler struct {
 	Scheme *runtime.Scheme
 }
 
-//+kubebuilder:rbac:groups=easyolm.bitspur.com,resources=manualsubscriptions,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=easyolm.bitspur.com,resources=manualsubscriptions/status,verbs=get;update;patch
-//+kubebuilder:rbac:groups=easyolm.bitspur.com,resources=manualsubscriptions/finalizers,verbs=update
+//+kubebuilder:rbac:groups=easyolm.rock8s.com,resources=manualsubscriptions,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=easyolm.rock8s.com,resources=manualsubscriptions/status,verbs=get;update;patch
+//+kubebuilder:rbac:groups=easyolm.rock8s.com,resources=manualsubscriptions/finalizers,verbs=update
 
-const manualSubscriptionFinalizer = "manualsubscription.finalizers.easyolm.bitspur.com"
+const manualSubscriptionFinalizer = "manualsubscription.finalizers.easyolm.rock8s.com"
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.

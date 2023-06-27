@@ -11,17 +11,17 @@ metadata:
     app.kubernetes.io/managed-by: kustomize
   name: manualsubscription-viewer-role
 rules:
-- apiGroups:
-  - cache.bitspur.com
-  resources:
-  - manualsubscriptions
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - cache.bitspur.com
-  resources:
-  - manualsubscriptions/status
-  verbs:
-  - get
+  - apiGroups:
+      - cache.rock8s.com
+    resources:
+      - manualsubscriptions
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - cache.rock8s.com
+    resources:
+      - manualsubscriptions/status
+    verbs:
+      - get

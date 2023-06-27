@@ -1,4 +1,4 @@
-apiVersion: cache.bitspur.com/v1alpha1
+apiVersion: cache.rock8s.com/v1alpha1
 kind: ManualSubscription
 metadata:
   labels:

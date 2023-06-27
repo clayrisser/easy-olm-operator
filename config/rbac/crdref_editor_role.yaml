@@ -11,21 +11,21 @@ metadata:
     app.kubernetes.io/managed-by: kustomize
   name: crdref-editor-role
 rules:
-- apiGroups:
-  - cache.bitspur.com
-  resources:
-  - crdrefs
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - cache.bitspur.com
-  resources:
-  - crdrefs/status
-  verbs:
-  - get
+  - apiGroups:
+      - cache.rock8s.com
+    resources:
+      - crdrefs
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - cache.rock8s.com
+    resources:
+      - crdrefs/status
+    verbs:
+      - get
