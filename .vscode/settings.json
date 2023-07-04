@@ -11,6 +11,7 @@
     "corev",
     "crdref",
     "crdrefs",
+    "customresourcedefinitions",
     "easyolm",
     "easyolmv",
     "finalizer",
