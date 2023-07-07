@@ -40,9 +40,6 @@ func getCrd(ctx context.Context, c client.Client, crd string) (*unstructured.Uns
 	if gvk.Kind != "CustomResourceDefinition" || gvk.Group != "apiextensions.k8s.io" {
 		return nil, errors.New("the provided YAML is not a CRD")
 	}
-	if err := c.Create(ctx, obj); err != nil {
-		return nil, err
-	}
 	return obj, nil
 }
 
