@@ -54,12 +54,16 @@ func (r *NamespaceReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 	}
 
 	var operatorGroupList operatorsv1.OperatorGroupList
-	if err := r.List(ctx, &operatorGroupList, client.InNamespace(req.Namespace)); err != nil {
+	if err := r.List(ctx, &operatorGroupList, client.InNamespace(namespace.Name)); err != nil {
 		logger.Error(err, "ListError", "namespace", req.Namespace)
 		return ctrl.Result{}, err
 	}
 	if len(operatorGroupList.Items) > 0 {
-		return ctrl.Result{}, nil
+		for _, operatorGroup := range operatorGroupList.Items {
+			if operatorGroup.Namespace == namespace.Name {
+				return ctrl.Result{}, nil
+			}
+		}
 	}
 
 	var operatorGroup operatorsv1.OperatorGroup
