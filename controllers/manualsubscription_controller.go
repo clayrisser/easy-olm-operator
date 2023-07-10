@@ -43,8 +43,9 @@ type ManualSubscriptionReconciler struct {
 }
 
 //+kubebuilder:rbac:groups=easyolm.rock8s.com,resources=manualsubscriptions,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=easyolm.rock8s.com,resources=manualsubscriptions/status,verbs=get;update;patch
 //+kubebuilder:rbac:groups=easyolm.rock8s.com,resources=manualsubscriptions/finalizers,verbs=update
+//+kubebuilder:rbac:groups=easyolm.rock8s.com,resources=manualsubscriptions/status,verbs=get;update;patch
+//+kubebuilder:rbac:groups=operators.coreos.com,resources=subscriptions,verbs=get;list;watch;create;update;patch;delete
 
 const manualSubscriptionFinalizer = "manualsubscription.finalizers.easyolm.rock8s.com"
 
