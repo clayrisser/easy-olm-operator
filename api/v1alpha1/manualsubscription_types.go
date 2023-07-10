@@ -29,7 +29,7 @@ type ManualSubscriptionSpec struct {
 	Name            string `json:"name,omitempty"`
 	Source          string `json:"source,omitempty"`
 	SourceNamespace string `json:"sourceNamespace,omitempty"`
-	StartingCSV     string `json:"startingCsv,omitempty"`
+	StartingCSV     string `json:"startingCSV,omitempty"`
 }
 
 // ManualSubscriptionStatus defines the observed state of ManualSubscription
