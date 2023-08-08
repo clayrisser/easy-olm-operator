@@ -79,13 +79,20 @@ func (r *ManualSubscriptionReconciler) Reconcile(ctx context.Context, req ctrl.R
 	} else {
 		if util.ContainsString(manualSubscription.ObjectMeta.Finalizers, manualSubscriptionFinalizer) {
 			subscription := &operatorsv1alpha1.Subscription{}
+			subscriptionFound := true
 			if err := r.Get(ctx, types.NamespacedName{Name: manualSubscription.Name, Namespace: manualSubscription.Namespace}, subscription); err != nil {
-				logger.Error(err, "GetError", "subscription", manualSubscription.Name)
-				return ctrl.Result{}, err
+				if errors.IsNotFound(err) {
+					subscriptionFound = false
+				} else {
+					logger.Error(err, "GetError", "subscription", manualSubscription.Name)
+					return ctrl.Result{}, err
+				}
 			}
-			if err := r.Delete(ctx, subscription); err != nil {
-				logger.Error(err, "DeleteError", "subscription", manualSubscription.Name)
-				return ctrl.Result{}, err
+			if subscriptionFound {
+				if err := r.Delete(ctx, subscription); err != nil {
+					logger.Error(err, "DeleteError", "subscription", manualSubscription.Name)
+					return ctrl.Result{}, err
+				}
 			}
 			controllerutil.RemoveFinalizer(&manualSubscription, manualSubscriptionFinalizer)
 			if err := r.Update(ctx, &manualSubscription); err != nil {

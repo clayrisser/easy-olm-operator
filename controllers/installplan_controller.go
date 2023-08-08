@@ -4,6 +4,7 @@ import (
 	"context"
 	"os"
 	"strconv"
+	"time"
 
 	operatorsv1alpha1 "github.com/operator-framework/api/pkg/operators/v1alpha1"
 	easyolmv1alpha1 "gitlab.com/bitspur/easy-olm-operator/api/v1alpha1"
@@ -51,6 +52,15 @@ func (r *InstallPlanReconciler) Reconcile(ctx context.Context, req ctrl.Request)
 	for _, manualSubscription := range manualSubscriptionList.Items {
 		if manualSubscription.Spec.StartingCSV == installPlan.Spec.ClusterServiceVersionNames[0] {
 			if !installPlan.Spec.Approved {
+				time.Sleep(1 * time.Second)
+				installPlan := &operatorsv1alpha1.InstallPlan{}
+				if err := r.Get(ctx, req.NamespacedName, installPlan); err != nil {
+					if errors.IsNotFound(err) {
+						return ctrl.Result{}, nil
+					}
+					logger.Error(err, "GetError", "installplan", req.NamespacedName)
+					return ctrl.Result{}, err
+				}
 				installPlan.Spec.Approved = true
 				if err := r.Update(ctx, installPlan); err != nil {
 					logger.Error(err, "UpdateError", "installplan", installPlan.Name)
